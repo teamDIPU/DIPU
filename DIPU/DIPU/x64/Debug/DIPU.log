@@ -1,0 +1,38 @@
+﻿  stdafx.cpp
+  ImageProcess.cpp
+c:\opencv3.1\build\include\opencv2\core\mat.hpp(1965): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\persistence.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+d:\gitproject\dipu\dipu\imageprocess.cpp(136): warning C4267: '+=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\imageprocess.cpp(180): warning C4267: '+=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\imageprocess.cpp(243): warning C4267: '+=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\imageprocess.cpp(338): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DIPUDlg.cpp
+c:\opencv3.1\build\include\opencv2\core\mat.hpp(1965): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\persistence.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+d:\gitproject\dipu\dipu\dipudlg.cpp(147): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(148): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(265): warning C4244: '초기화 중': 'UINT_PTR'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(315): warning C4101: 'size' :참조되지 않은 지역 변수입니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(502): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(503): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(611): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(555): warning C4101: 'l3' :참조되지 않은 지역 변수입니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(549): warning C4101: 'Q3' :참조되지 않은 지역 변수입니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(623): warning C4101: 'pz' :참조되지 않은 지역 변수입니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(656): warning C4101: 'pz' :참조되지 않은 지역 변수입니다.
+d:\gitproject\dipu\dipu\dipudlg.cpp(865): warning C4554: '&': 연산자 우선 순위에 오류가 있는지 확인하십시오. 괄호를 사용하여 우선 순위를 명확하게 지정하십시오.
+d:\gitproject\dipu\dipu\dipudlg.cpp(855): warning C4101: 'pz' :참조되지 않은 지역 변수입니다.
+  DIPU.cpp
+c:\opencv3.1\build\include\opencv2\core\mat.hpp(1965): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\persistence.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+c:\opencv3.1\build\include\opencv2\core\utility.hpp : warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  comm.cpp
+  코드를 생성하고 있습니다...
+  LINK : D:\Gitproject\DIPU\x64\Debug\DIPU.exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
+  DIPU.vcxproj -> D:\Gitproject\DIPU\x64\Debug\DIPU.exe
+  DIPU.vcxproj -> D:\Gitproject\DIPU\x64\Debug\DIPU.pdb (Partial PDB)
