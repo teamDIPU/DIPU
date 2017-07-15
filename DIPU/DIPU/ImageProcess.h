@@ -6,7 +6,7 @@
 #include <iostream>
 
 //#define RNG rng(12345);
-#define daeunDebug 1
+#define daeunDebug 0
 //
 #include "use_opencv.h"
 
@@ -33,8 +33,6 @@
 #define ColorNum 4
 
 
-
-
 using namespace cv;
 using namespace std;
 
@@ -48,22 +46,12 @@ public:
 	int ImageProcess_video();
 
 	Mat getTargetMat();
-
-	void myDrawContours(InputOutputArray image, vector<vector<Point>> contours, bool Dot=0);
-
-
-
+	void myDrawContours(InputOutputArray image, vector<vector<Point>> contours, bool Dot = 0);
 	vector<vector<Point>> ContourApproximation(Mat src);
 	vector<vector<Point2d>> ContoursTransform(Mat src, vector<vector<Point>> contours);
-
-
-
-
 	Mat ColorTransform(Mat src);
 
 	//void DisplayImage(int IDC_PICTURE_TARGET, Mat targetMat);
-
-
 	int test();
 	Point2f FindLinearEquation(Point Pt_A, Point Pt_B);
 	float FindDistance_equ2pt(Point2f equ, Point Pt);
@@ -71,5 +59,5 @@ public:
 
 private:
 	;
-	
+
 };

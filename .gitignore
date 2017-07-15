@@ -1,0 +1,9 @@
+*.opensdf
+*.log
+*.opendb
+*.db
+*.sdf
+*.ipch
+*.pch
+*.pdb
+*.idb

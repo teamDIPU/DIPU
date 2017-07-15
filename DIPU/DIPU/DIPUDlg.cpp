@@ -227,7 +227,7 @@ TTYSTRUCT CDIPUDlg::Int2TTY()
 TTYSTRUCT CDIPUDlg::LoadSettings()
 {
 	CWinApp *pApp = AfxGetApp();
-	m_nSettingPort = pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
+	m_nSettingPort = 4;//pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
 	m_nSettingParity = 0;
 	m_nSettingBaud = pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_BAUD, 0);
 	m_nSettingData = 1;

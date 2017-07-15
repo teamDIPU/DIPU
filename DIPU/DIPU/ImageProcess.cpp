@@ -17,14 +17,14 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	Mat edge = imread(filename, 0);		//edge 이미지
 	Mat dst = imread(filename, 3);		//최종 이미지
 
-	if (src.rows!=0)
-	cout << "distance (point to point) : " << 210.0 * LimitDistancePT2PT / src.rows << "mm" << "\n\n";
+	if (src.rows != 0)
+		cout << "distance (point to point) : " << 210.0 * LimitDistancePT2PT / src.rows << "mm" << "\n\n";
 
 	int edgeThresh = CannyThresh;
 
 	if (src.empty()) {
 		cout << "can not open" << endl;
-		return Mat(1,1,CV_8UC1);
+		return Mat(1, 1, CV_8UC1);
 	}
 
 	GaussianBlur(src, src, Size_<int>(5, 5), 1);
@@ -38,7 +38,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 		if (a[0] < CannyImageBrightness - CannyImageBrightnessTerm) edgeThresh--;
 		else if (a[0] > CannyImageBrightness + CannyImageBrightnessTerm) edgeThresh++;
 		else {
-			cout << "edge threshold : "<< edgeThresh << endl;
+			cout << "edge threshold : " << edgeThresh << endl;
 			break;
 		}
 	}
@@ -46,7 +46,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	cv::imshow("edge Image", edge);
 	cv::Mat erode1, erode2, erode3, erode4;
 	cv::Mat element1(2, 2, CV_8U, cv::Scalar(1));
-	element1.at<unsigned char>(0,0) = 0;
+	element1.at<unsigned char>(0, 0) = 0;
 
 	cv::Mat element2(2, 2, CV_8U, cv::Scalar(1));
 	element2.at<unsigned char>(1, 0) = 0;
@@ -57,7 +57,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	cv::Mat element4(2, 2, CV_8U, cv::Scalar(1));
 	element4.at<unsigned char>(1, 1) = 0;
 
-	cv::morphologyEx(edge, erode1, cv::MORPH_ERODE, element1, Point(1,1));
+	cv::morphologyEx(edge, erode1, cv::MORPH_ERODE, element1, Point(1, 1));
 	cv::morphologyEx(edge, erode2, cv::MORPH_ERODE, element2, Point(1, 0));
 	//edge = edge - closed;
 	cv::morphologyEx(edge, erode3, cv::MORPH_ERODE, element3, Point(0, 1));
@@ -66,13 +66,13 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 	cv::namedWindow("Closed Image");
 	cv::imshow("Closed Image", edge);
-	
+
 
 	// Contour approximation and Conversion 
 	vector<vector<Point>> contours;
 	vector<vector<Point2d>> TransformContours;
-	contours=ContourApproximation(edge);
-	TransformContours=ContoursTransform(edge, contours);
+	contours = ContourApproximation(edge);
+	TransformContours = ContoursTransform(edge, contours);
 
 	/////색상 추출
 	////pyrMeanShiftFiltering(src_3c, color_3c, 25, 70, 2);
@@ -96,7 +96,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 int DIPU::test()
 {
-	Mat image= imread(FILE, 3);
+	Mat image = imread(FILE, 3);
 
 	Mat color = ColorTransform(image);
 
@@ -134,8 +134,8 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 		drawContours(drawing, contours, i, color, 1, 8, hierarchy, 0, Point());
 		CountourNum += contours[i].size();
-		
-	//	cout << "contour " << i + 1 << "   size : " << contours[i].size() << endl;
+
+		//	cout << "contour " << i + 1 << "   size : " << contours[i].size() << endl;
 	}
 	cout << "Contour point : " << CountourNum << endl;
 	cout << "countour number : " << contours.size() << endl << endl;
@@ -208,7 +208,7 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 			}
 
 			// 아닌 경우 직선의 방정식을 구하고 이전 점과 현재 점 사이의 거리를 구한다.
-			else{
+			else {
 				EquationPT2PT = FindLinearEquation(it1[it1.size() - 1], point);
 				DistancePT2PT = FindDistance_pt2pt(it1[it1.size() - 1], point);
 				if (DistancePT2PT > LimitDistancePT2PT) goto save;
@@ -229,16 +229,16 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 		}
 		//if (it1.size() !=0 ) ApproximatedContours.push_back(it1);
 
-		if (it1.size() >MinimumContourPixel/ LimitDistancePT2PT) ApproximatedContours.push_back(it1);
+		if (it1.size() >MinimumContourPixel / LimitDistancePT2PT) ApproximatedContours.push_back(it1);
 	}
 
 	// Check contours(approximation)
-	cout <<endl<< "Approximated Contour ********" << endl;
+	cout << endl << "Approximated Contour ********" << endl;
 	int  ApproximatedCountourNum = 0;
 	for (int i = 0; i < ApproximatedContours.size(); i++) {
 
 #if daeunDebug
-		cout << "contour " << i + 1 << "   size : " << ApproximatedContours[i].size()<<endl;
+		cout << "contour " << i + 1 << "   size : " << ApproximatedContours[i].size() << endl;
 #endif
 		ApproximatedCountourNum += ApproximatedContours[i].size();
 		for (int j = 0; j < ApproximatedContours[i].size(); j++) {
@@ -262,7 +262,7 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 
 	//ApproximatedContours
 	A_drawing = Mat::zeros(src.size(), CV_8UC3);
-	for (int i = 0; i < ApproximatedContours.size()-1; i++)
+	for (int i = 0; i < ApproximatedContours.size() - 1; i++)
 	{
 		myDrawContours(A_drawing, ApproximatedContours, 0);
 	}
@@ -271,7 +271,7 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 
 }
 
-vector<vector<Point2d>> DIPU::ContoursTransform(Mat src , vector<vector<Point>> contours)
+vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> contours)
 {
 	// Convert form pixel to mm
 	int TransformMode = 0;
@@ -281,37 +281,38 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src , vector<vector<Point>> 
 
 	vector<vector<Point2d>> TransformContour;
 	for (int i = 0; i < contours.size(); i++) {
+		vector<Point2d> it1;
 		//cout << "\ncontour " << i + 1 << endl;
 
 #if daeunDebug
 		cout << "Transform Contour " << i << endl;
 #endif
-
 		for (int j = 0; j < contours[i].size(); j++) {
-			vector<Point2d> it1;
+
 			if (ImageRatio > A4RATIO)//가로길이에 맞추기
 			{
-				Point2d point(contours[i][j].x *(A4X/src.cols) * scale, (contours[i][j].y*(A4X/src.cols)+(A4Y-A4X*src.rows/src.cols)/2 ) * scale);
-				//cout << point<<endl;
+				Point2d point(contours[i][j].x *(A4X / src.cols) * scale, (contours[i][j].y*(A4X / src.cols) + (A4Y - A4X*src.rows / src.cols) / 2) * scale);
+
 				it1.push_back(point);
+#if daeunDebug
+				cout << "Transform Contour" << point << endl;
+#endif
 			}
+
 			else //세로길이에 맞추기
 			{
 				//Point2d point(contours[i][j].x * (A4Y/src.rows)+(A4X)*(1-A4Y/src.cols)/2 , contours[i][j].y*(A4Y/src.rows));
-				Point2d point((contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows ) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
-				//cout << point<<endl;
+				Point2d point((contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
+
 				it1.push_back(point);
-			}
-			if (it1.size() >0) {
-				TransformContour.push_back(it1);
-
 #if daeunDebug
-				cout << "Transform Contour" << it1 << endl;
+				cout << "Transform Contour" << point << endl;
 #endif
-
 			}
 		}
-		//cout << endl;
+		if (it1.size() > 0) {
+			TransformContour.push_back(it1);
+		}
 	}
 
 	return TransformContour;
@@ -335,7 +336,7 @@ float DIPU::FindDistance_equ2pt(Point2f equ, Point Pt)
 
 float DIPU::FindDistance_pt2pt(Point Pt_A, Point Pt_B)
 {
-	return sqrt((Pt_A.x-Pt_B.x)*(Pt_A.x - Pt_B.x)+ (Pt_A.y - Pt_B.y)*(Pt_A.y - Pt_B.y));
+	return sqrt((Pt_A.x - Pt_B.x)*(Pt_A.x - Pt_B.x) + (Pt_A.y - Pt_B.y)*(Pt_A.y - Pt_B.y));
 }
 
 void DIPU::myDrawContours(InputOutputArray image, vector<vector<Point>> contours, bool Dot)
@@ -404,7 +405,8 @@ Mat DIPU::ColorTransform(Mat src)
 					ColorIndex = k;
 				}
 			}
-			tmColor(j, i, B)= PenColor[ColorIndex][B];
+
+			tmColor(j, i, B) = PenColor[ColorIndex][B];
 			tmColor(j, i, G) = PenColor[ColorIndex][G];
 			tmColor(j, i, R) = PenColor[ColorIndex][R];
 			distance = 0xffffffff;
@@ -412,15 +414,3 @@ Mat DIPU::ColorTransform(Mat src)
 	}
 	return color;
 }
-
-//TypedMat<unsigned char> tm = image;    // 연결방법 1
-
-									   // image가 1채널 grayscale 이미지일 경우
-									   //tm[y][x] = 100;    // (x,y)의 픽셀값을 100으로 설정
-
-									   // image가 3채널 color 이미지일 경우
-									   //tm(y, x, 0) = 100;    // (x,y)의 픽셀의 blue값을 100으로 설정
-									   //tm(y, x, 1) = 200;    // (x,y)의 픽셀의 green값을 200으로 설정
-									   //tm(y, x, 2) = 50;    // (x,y)의 픽셀의 red값을 50으로 설정
-
-
