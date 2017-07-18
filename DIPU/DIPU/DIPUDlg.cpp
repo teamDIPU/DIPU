@@ -227,7 +227,7 @@ TTYSTRUCT CDIPUDlg::Int2TTY()
 TTYSTRUCT CDIPUDlg::LoadSettings()
 {
 	CWinApp *pApp = AfxGetApp();
-	m_nSettingPort = 4;//pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
+	m_nSettingPort = 1;//pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
 	m_nSettingParity = 0;
 	m_nSettingBaud = pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_BAUD, 0);
 	m_nSettingData = 1;
@@ -353,7 +353,7 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int result;
 
-	result = dxl_initialize(DEFAULT_PORTNUM, DEFAULT_BAUDNUM);
+	result = dxl_initialize(2, DEFAULT_BAUDNUM);
 
 	if (result == 1)
 	{
@@ -368,8 +368,9 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 		// Failed to open USB2Dynamixel
 
 	}
-	dxl_write_word(1, P_GOAL_SPEED_L, 20);
+	/*dxl_write_word(1, P_GOAL_SPEED_L, 20);
 	dxl_write_word(2, P_GOAL_SPEED_L, 5);
+*/
 	//DIP
 	dxl_write_byte(1, 26, 1);
 	dxl_write_byte(1, 27, 6);
@@ -384,8 +385,6 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 	dxl_write_byte(2, 73, 0);
 	/*dxl_write_word(BROADCAST_ID, CW_Compliance_Slope, 128);
 	dxl_write_word(BROADCAST_ID, CCW_Compliance_Slope, 128);*/
-
-
 }
 
 
@@ -861,11 +860,12 @@ void CDIPUDlg::OnBnClickedImgDraw()
 		cout << "\nDraw contour " << i + 1 << endl;
 
 		for (int j = 0; j < contours[i].size(); j++) {
+			
+			px = contours[i][j].y;
+			py = contours[i][j].x;
 
-			if (i!=0 &j == 0) CalcJoint(px, py, 0);
+			if (j == 0) CalcJoint(px, py, 0);
 
-			px = contours[i][j].y ;
-			py = contours[i][j].x ;
 			CalcJoint(px, py, 1);
 
 			if (j == contours[i].size() - 1) CalcJoint(px, py, 0);
@@ -949,6 +949,7 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 
 	DIPU a;
 	contours = a.ImageProcess();
+	//a.test();
 	Mat targetmat = a.getTargetMat();
 	DisplayImage(IDC_PIC, targetmat);
 }

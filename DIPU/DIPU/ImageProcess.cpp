@@ -3,7 +3,8 @@
 
 Mat src;
 
-unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 60,60,255 },{ 200,220,250 },{ 255,255,255 } };// 검 빨 살 흰
+unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 180,130,240 },{ 150,210,220} };// 검 흰 빨 살 
+unsigned char PenColorHSV[ColorNum][3];
 
 
 vector<vector<Point2d>> DIPU::ImageProcess()
@@ -98,7 +99,7 @@ int DIPU::test()
 {
 	Mat image = imread(FILE, 3);
 
-	Mat color = ColorTransform(image);
+	Mat color = ColorTransform_HLS(image);//ColorTransform(image);
 
 	imshow("dst", color);
 	return 0;
@@ -287,22 +288,12 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 #if daeunDebug
 		cout << "Transform Contour " << i << endl;
 #endif
-		for (int j = 0; j < contours[i].size(); j++) {
+		
 
-			if (ImageRatio > A4RATIO)//가로길이에 맞추기
-			{
-				Point2d point(contours[i][j].x *(A4X / src.cols) * scale, (contours[i][j].y*(A4X / src.cols) + (A4Y - A4X*src.rows / src.cols) / 2) * scale);
-
-				it1.push_back(point);
-#if daeunDebug
-				cout << "Transform Contour" << point << endl;
-#endif
-			}
-
-			else //세로길이에 맞추기
-			{
-				//Point2d point(contours[i][j].x * (A4Y/src.rows)+(A4X)*(1-A4Y/src.cols)/2 , contours[i][j].y*(A4Y/src.rows));
-				Point2d point((contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
+		if (ImageRatio > A4RATIO)//가로길이에 맞추기
+		{
+			for (int j = 0; j < contours[i].size(); j++) {
+				Point2d point(A4X-(contours[i][j].x *(A4X / src.cols) * scale), (contours[i][j].y*(A4X / src.cols) + (A4Y - A4X*src.rows / src.cols) / 2) * scale);
 
 				it1.push_back(point);
 #if daeunDebug
@@ -310,6 +301,20 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 #endif
 			}
 		}
+
+		else //세로길이에 맞추기
+		{
+			for (int j = 0; j < contours[i].size(); j++) {
+				//Point2d point(contours[i][j].x * (A4Y/src.rows)+(A4X)*(1-A4Y/src.cols)/2 , contours[i][j].y*(A4Y/src.rows));
+				Point2d point(A4X-(contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
+
+				it1.push_back(point);
+#if daeunDebug
+				cout << "Transform Contour" << point << endl;
+#endif
+			}
+		}
+		
 		if (it1.size() > 0) {
 			TransformContour.push_back(it1);
 		}
@@ -410,6 +415,60 @@ Mat DIPU::ColorTransform(Mat src)
 			tmColor(j, i, G) = PenColor[ColorIndex][G];
 			tmColor(j, i, R) = PenColor[ColorIndex][R];
 			distance = 0xffffffff;
+		}
+	}
+	return color;
+}
+
+
+Mat DIPU::ColorTransform_HLS(Mat src)
+{
+
+	Mat color = src.clone();
+	pyrMeanShiftFiltering(src, color, 25, 70, 2);
+
+	cvtColor(src, src, CV_BGR2HSV);
+
+	TypedMat<unsigned char> tmSrc = src;
+	TypedMat<unsigned char> tmColor = color;
+
+	unsigned char distance = 0xff;
+	int ColorIndex = 0;
+
+	for (int i = 0; i < ColorNum; i++) {
+		Mat penColor(1, 1, CV_8UC3);
+		penColor.at<Vec3b>(0, 0)[B] = PenColor[i][B];
+		penColor.at<Vec3b>(0, 0)[G] = PenColor[i][G];
+		penColor.at<Vec3b>(0, 0)[R] = PenColor[i][R];
+
+		cvtColor(penColor, penColor, CV_BGR2HSV);
+
+		PenColorHSV[i][H] = penColor.at<Vec3b>(0, 0)[H];
+		PenColorHSV[i][S] = penColor.at<Vec3b>(0, 0)[S];
+		PenColorHSV[i][V] = penColor.at<Vec3b>(0, 0)[V];
+	}
+
+	for (int i = 0; i < src.cols; i++) {
+		for (int j = 0; j < src.rows; j++) {
+			for (int k = 2; k < ColorNum; k++) {
+				int hue = abs(tmSrc(j, i, H) - PenColorHSV[k][H]);
+				if (hue > 180) hue -= 180;
+				else if (hue < 0) hue += 360;
+
+				//unsigned int squre = (blue*blue + green*green + red*red);
+
+				if (distance > hue) {
+					distance = hue;
+					ColorIndex = k;
+				}
+
+				if (tmSrc(j, i, V) < 130) { ColorIndex = 0; }
+				else if (tmSrc(j, i, V) > 230) { ColorIndex = 1; }
+			}
+			tmColor(j, i, B) = PenColor[ColorIndex][B];
+			tmColor(j, i, G) = PenColor[ColorIndex][G];
+			tmColor(j, i, R) = PenColor[ColorIndex][R];
+			distance = 0xff;
 		}
 	}
 	return color;

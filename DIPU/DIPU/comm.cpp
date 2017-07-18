@@ -187,7 +187,7 @@ BOOL CComm::OpenCommPort(LPTTYSTRUCT lpTTY)
 
    
 	if (lpTTY->byCommPort > COM_MAXPORTS)
-		lstrcpy( szPort, "\\\\.\\TELNET" ) ;
+		lstrcpy(szPort, "\\\\.\\TELNET");
 	else
 		wsprintf( szPort, "COM%d", lpTTY->byCommPort );
 
