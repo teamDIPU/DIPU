@@ -400,6 +400,9 @@ void CDIPUDlg::servocom(int *id, double *deg)
 	double dif_1, dif_2;
 	double presentdeg1, presentdeg2;
 	double load1, load2;
+
+
+	/*
 	presentdeg1 = dxl_read_word(1, 36);
 	presentdeg2 = dxl_read_word(2, 36);
 	load1 = dxl_read_word(1, 40);
@@ -415,7 +418,7 @@ void CDIPUDlg::servocom(int *id, double *deg)
 	dif_2 = ((long)(deg[1]-presentdeg2));
 	
 	printf("   dif1=%.3f , dif2=%.3f\n", dif_1, dif_2);
-
+	*/
 	int speed[3];
 	if (deg[2] == 590)
 	{
@@ -425,72 +428,12 @@ void CDIPUDlg::servocom(int *id, double *deg)
 	}
 	else
 	{
-		speed[0] = 80;
-		speed[1] = 10;
+		speed[0] = 16;
+		speed[1] = 2;
 		speed[2] = 100;
 		
 	}
-	/*
-	if (dif_1 > 8)
-	{
-		dxl_write_word(1, 27, 5);
-		dxl_write_word(1, 28, 15);
-	}
-	else
-	{	
-		dxl_write_word(1, 27, 1);
-		dxl_write_word(1, 28, 30);
-	}
-	if (dif_2 > 8)
-	{
-		dxl_write_word(2, 27, 5);
-		dxl_write_word(2, 28, 100);
-	}
-	else
-	{
-		dxl_write_word(2, 27, 1);
-		dxl_write_word(2, 28, 200);
-	}*/
 
-	/*
-	if ((load1 > 50) )
-	{
-		dxl_write_byte(1, 27, 1);
-		dxl_write_byte(1, 28, 15);
-	}
-	else
-	{
-		dxl_write_byte(1, 26, 1);
-		dxl_write_byte(1, 27, 1);
-		dxl_write_byte(1, 28, 30);
-
-	}
-	if ((load2 > 50))
-	{
-		dxl_write_byte(2, 27, 1);
-		dxl_write_byte(2, 28, 100);
-	}
-	else
-	{
-		dxl_write_byte(2, 26, 100);
-		dxl_write_byte(2, 27, 1);
-		dxl_write_byte(2, 28, 200);
-	}*/
-
-
-	/*
-	if ((dif_2==0||dif_1==0))
-		speed[0] = 40;
-	else
-		speed[0] = (dif_2 / dif_1) * speed[1] * 8;
-	if (speed[0] <= 0)
-		speed[0] = 5;
-	if (speed[0] > 40)
-		speed[0] = 40;
-	printf("%d\n",speed[0]);
-	*/
-
-	//deg[1] = 2048;
 	dxl_set_txpacket_id(BROADCAST_ID);
 	dxl_set_txpacket_instruction(INST_SYNC_WRITE);
 	dxl_set_txpacket_parameter(0, P_GOAL_POSITION_L);
@@ -567,7 +510,7 @@ void CDIPUDlg::CalcJoint(double Pos_x, double Pos_y, double Pos_z)
 	py = -Pos_y + A4_y2;
 	pz = Pos_z;
 
-	printf("px=%.3f, py=%03.3f    ", Pos_x, Pos_y);
+	//printf("px=%.3f, py=%03.3f    ", Pos_x, Pos_y);
 	//-------------------------------------------------------------------------------------------------------------- 
 
 	d = sqrt(px*px + py*py);
@@ -604,11 +547,11 @@ void CDIPUDlg::CalcJoint(double Pos_x, double Pos_y, double Pos_z)
 	}
 	else if (Pos_z == 1)
 	{
-		Q[2] = 590;
+		Q[2] = 580;
 		
 	}
 	pre_z = Pos_z;
-	printf("Q1=%.3f, Q2=%.3f", Q[0], Q[1]);
+	//printf("Q1=%.3f, Q2=%.3f", Q[0], Q[1]);
 	servocom(id,Q);
 
 }

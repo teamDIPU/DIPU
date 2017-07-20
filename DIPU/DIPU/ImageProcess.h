@@ -10,7 +10,7 @@
 //
 #include "use_opencv.h"
 
-#define FILE "testImage/test6.png"
+#define FILE "testImage/portrait.jpg"
 #define LimitDistanceEQU2PT 0.5
 #define LimitDistancePT2PT 1
 
