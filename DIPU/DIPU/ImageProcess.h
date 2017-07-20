@@ -12,7 +12,7 @@
 
 #define FILE "testImage/test6.png"
 #define LimitDistanceEQU2PT 0.5
-#define LimitDistancePT2PT 3
+#define LimitDistancePT2PT 1
 
 //선길이 최소 6mm (0.29*5) 이상
 #define MinimumContourPixel 10
