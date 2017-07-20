@@ -353,7 +353,7 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int result;
 
-	result = dxl_initialize(2, DEFAULT_BAUDNUM);
+	result = dxl_initialize(4, DEFAULT_BAUDNUM);
 
 	if (result == 1)
 	{
@@ -373,15 +373,15 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 */
 	//DIP
 	dxl_write_byte(1, 26, 1);
-	dxl_write_byte(1, 27, 6);
-	dxl_write_byte(1, 28, 35);
+	dxl_write_byte(1, 27, 20);
+	dxl_write_byte(1, 28, 100);
 	dxl_write_byte(1, 73, 0);
 
 
 	//DIP
 	dxl_write_byte(2, 26, 1);
-	dxl_write_byte(2, 27, 10);
-	dxl_write_byte(2, 28, 100);
+	dxl_write_byte(2, 27, 20);
+	dxl_write_byte(2, 28, 150);
 	dxl_write_byte(2, 73, 0);
 	/*dxl_write_word(BROADCAST_ID, CW_Compliance_Slope, 128);
 	dxl_write_word(BROADCAST_ID, CCW_Compliance_Slope, 128);*/
