@@ -1,12 +1,11 @@
 
 // DIPUDlg.h : 헤더 파일
-//
-
 #pragma once
 #include "comm.h"
 #include "afxwin.h"
 #include"ImageProcess.h"
-//하하
+
+#define HakDebug 0
 
 // CDIPUDlg 대화 상자
 class CDIPUDlg : public CDialogEx
