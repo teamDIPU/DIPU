@@ -6,18 +6,18 @@
 #include <iostream>
 
 //#define RNG rng(12345);
-#define daeunDebug 0
+#define daeunDebug 1
 //
 #include "use_opencv.h"
 
-#define FILE "testImage/portrait.jpg"
+#define FILE "testImage/ds.jpg"
 #define LimitDistanceEQU2PT 0.5
-#define LimitDistancePT2PT 1
+#define LimitDistancePT2PT 2
 
 //선길이 최소 6mm (0.29*5) 이상
-#define MinimumContourPixel 10
+#define MinimumContourPixel 5//10
 
-#define CannyThresh 100
+#define CannyThresh 50 //100
 #define CannyImageBrightness 5
 #define CannyImageBrightnessTerm 1
 #define A4Y double(210.0)
