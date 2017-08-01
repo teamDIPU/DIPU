@@ -6,7 +6,7 @@
 #include <iostream>
 
 //#define RNG rng(12345);
-#define daeunDebug 0
+#define Debug 0
 //
 #include "use_opencv.h"
 
@@ -19,7 +19,7 @@
 
 #define CannyThresh 100
 #define CannyImageBrightness 5
-#define CannyImageBrightnessTerm 1
+#define CannyImageBrightnessTerm 0.5
 #define A4Y double(210.0)
 #define A4X double(297.0)
 #define A4RATIO double(297/210)
@@ -47,10 +47,12 @@ public:
 	Mat A_drawing;
 	//int ImageProcess();
 	vector<vector<Point2d>> ImageProcess();
+	void setWebcamMode(bool mode);
 	int ImageProcess_video();
 
 	Mat getTargetMat();
 	void myDrawContours(InputOutputArray image, vector<vector<Point>> contours, bool Dot = 0);
+	Mat capture();
 	vector<vector<Point>> ContourApproximation(Mat src);
 	vector<vector<Point2d>> ContoursTransform(Mat src, vector<vector<Point>> contours);
 	Mat ColorTransform(Mat src);

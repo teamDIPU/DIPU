@@ -936,20 +936,9 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-
-
-	//Mat src = imread(FILE);
-
-	//DisplayImage(IDC_PICTURE, src);
-
-
-	//CDialogEx::OnOK();
-
-
-
 	DIPU a;
-	contours = a.ImageProcess();
 	//a.test();
+	contours = a.ImageProcess();
 	Mat targetmat = a.getTargetMat();
 	DisplayImage(IDC_PIC, targetmat);
 }

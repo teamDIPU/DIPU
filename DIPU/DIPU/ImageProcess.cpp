@@ -6,20 +6,30 @@ Mat src;
 unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 180,130,240 },{ 150,210,220} };// 검 흰 빨 살 
 unsigned char PenColorHSV[ColorNum][3];
 
+bool webcamMode = true;
 
 vector<vector<Point2d>> DIPU::ImageProcess()
 {
 	cout << "Image Process\n";
 
 	char* filename = FILE;
-	//char* filename = "testImage/apple.png";
-	src = imread(filename, 0);		//원본 이미지
-	Mat src_3c = imread(filename, 3);	//원본 이미지(3c)
-	Mat edge = imread(filename, 0);		//edge 이미지
-	Mat dst = imread(filename, 3);		//최종 이미지
+
+	if (webcamMode) src = capture();
+	else src = imread(filename, 0);		
+	
+	Mat src_3c = Mat(src.cols, src.rows, CV_8UC3); // imread(filename, 3);	//원본 이미지(3c)
+	Mat edge = Mat(src.cols, src.rows, CV_8UC1);		//edge 이미지
+	Mat dst = Mat(src.cols, src.rows, CV_8UC3);		//최종 이미지
 
 	if (src.rows != 0)
-		cout << "distance (point to point) : " << 210.0 * LimitDistancePT2PT / src.rows << "mm" << "\n\n";
+	cout << "distance (point to point) : " << 210.0 * LimitDistancePT2PT / src.rows << "mm" << "\n";
+	cout << "minimum line length : " << 0.29 * MinimumContourPixel << "mm" << "\n\n";
+	cout << "image file :" << FILE << endl;
+	cout << "LimitDistancePT2PT : " << LimitDistancePT2PT << endl;
+	cout << "MinimumContourPixel : " << MinimumContourPixel << endl;
+	cout << "CannyImageBrightness : " << CannyImageBrightness << endl<<endl;
+
+
 
 	int edgeThresh = CannyThresh;
 
@@ -94,14 +104,16 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	return TransformContours;
 }
 
+void DIPU::setWebcamMode(bool mode) {
+	webcamMode = mode;
+	return;
+}
 
 int DIPU::test()
 {
 	Mat image = imread(FILE, 3);
 
-	Mat color = ColorTransform_HLS(image);//ColorTransform(image);
-
-	imshow("dst", color);
+	capture();
 	return 0;
 }
 
@@ -238,13 +250,13 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 	int  ApproximatedCountourNum = 0;
 	for (int i = 0; i < ApproximatedContours.size(); i++) {
 
-#if daeunDebug
+#if Debug
 		cout << "contour " << i + 1 << "   size : " << ApproximatedContours[i].size() << endl;
 #endif
 		ApproximatedCountourNum += ApproximatedContours[i].size();
 		for (int j = 0; j < ApproximatedContours[i].size(); j++) {
 
-#if daeunDebug
+#if Debug
 			cout << ApproximatedContours[i][j] << endl;
 #endif
 
@@ -285,7 +297,7 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 		vector<Point2d> it1;
 		//cout << "\ncontour " << i + 1 << endl;
 
-#if daeunDebug
+#if Debug
 		cout << "Transform Contour " << i << endl;
 #endif
 		
@@ -296,7 +308,7 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 				Point2d point(A4X-(contours[i][j].x *(A4X / src.cols) * scale), (contours[i][j].y*(A4X / src.cols) + (A4Y - A4X*src.rows / src.cols) / 2) * scale);
 
 				it1.push_back(point);
-#if daeunDebug
+#if Debug
 				cout << "Transform Contour" << point << endl;
 #endif
 			}
@@ -309,7 +321,7 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 				Point2d point(A4X-(contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
 
 				it1.push_back(point);
-#if daeunDebug
+#if Debug
 				cout << "Transform Contour" << point << endl;
 #endif
 			}
@@ -360,22 +372,22 @@ void DIPU::myDrawContours(InputOutputArray image, vector<vector<Point>> contours
 	}
 }
 
-int DIPU::ImageProcess_video()
+Mat DIPU::capture()
 {
-	cout << "Image Process for Video";
+	// open the default camera
+	VideoCapture capture(0);
 
-	CvCapture* capture = NULL;
-	IplImage* grabImage;
+	// check if we succeeded
+	if (!capture.isOpened())
+		return Mat();
 
-	cvGrabFrame(capture);
-	grabImage = cvRetrieveFrame(capture);
+	namedWindow("WebCam Frame Capture", 1);
+	Mat frame;
+	capture >> frame;
 
-	// else if (grabImage == NULL) {
-	// }
+	imshow("WebCam Frame Capture", frame);
 
-	return 0;
-
-
+	return frame;
 }
 
 Mat DIPU::getTargetMat() {
