@@ -9,6 +9,7 @@
 #include "comm.h"
 #include <math.h>
 #include "USB2DY.h"
+#include <sapi.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -29,6 +30,8 @@ double  Q[3];
 
 // CDIPUDlg 대화 상자
 
+
+
 CDIPUDlg::CDIPUDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_DIPU_DIALOG, pParent)
 	, m_nSettingPort(0)
@@ -46,6 +49,7 @@ CDIPUDlg::CDIPUDlg(CWnd* pParent /*=NULL*/)
 	, flag_Ldown(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
 }
 
 void CDIPUDlg::DoDataExchange(CDataExchange* pDX)
@@ -107,7 +111,14 @@ BOOL CDIPUDlg::OnInitDialog()
 	A4_x2 = A4_x1 + 210 ;
 	A4_y1 = -148.5;
 	A4_y2 = A4_y1 + 297 ;
+	
 
+
+	//voice
+#if !(Mute)
+	m_pVoicetext = L"안녕! DIPU 프로그렘 시작";
+	AfxBeginThread(ThreadVoice, &m_pVoicetext);
+#endif
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -879,9 +890,40 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
+	//voice
+#if !(Mute)
+	m_pVoicetext = L"사진 찍습니다! 하나, 둘, 셋!";
+	AfxBeginThread(ThreadVoice, &m_pVoicetext);
+#endif
+
+
 	DIPU a;
 	//a.test();
 	contours = a.ImageProcess();
 	Mat targetmat = a.getTargetMat();
 	DisplayImage(IDC_PIC, targetmat);
+
+
+}
+
+
+UINT CDIPUDlg::ThreadVoice(LPVOID pParam)
+{
+
+	LPCWSTR *str = (LPCWSTR*)pParam;
+	ISpVoice * pVoice = NULL;
+
+	
+	if (FAILED(::CoInitialize(NULL)))
+		return 0;
+	HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+	if (SUCCEEDED(hr))
+	{
+		hr = pVoice->Speak(*str, 0, NULL);
+		pVoice->Release();
+		pVoice = NULL;
+	}
+	::CoUninitialize();
+
+	return 0;
 }

@@ -390,7 +390,7 @@ Mat DIPU::capture()
 	for (;;) {
 		capture >> frame;
 		imshow("WebCam Frame Capture", frame);
-		if (waitKey(1000) >= 0) break;
+		if (waitKey(1) >= 0) break;
 	}
 
 
