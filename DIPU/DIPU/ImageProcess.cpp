@@ -377,23 +377,16 @@ Mat DIPU::capture()
 	// open the default camera
 	VideoCapture capture(0);
 
-	// check if we succeeded
 	if (!capture.isOpened())
 		return Mat();
 
 	namedWindow("WebCam Frame Capture", 1);
 	Mat frame;
-	capture >> frame;
-
-	imshow("WebCam Frame Capture", frame);
-
 	for (;;) {
 		capture >> frame;
 		imshow("WebCam Frame Capture", frame);
-		if (waitKey(1000) >= 0) break;
+		if (waitKey(1) >= 0) break;
 	}
-
-
 	return frame;
 }
 
