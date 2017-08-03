@@ -6,11 +6,7 @@
 #include <iostream>
 
 //#define RNG rng(12345);
-<<<<<<< HEAD
 #define Debug 0
-=======
-#define daeunDebug 1
->>>>>>> e570c200af0da1b1209a56c34da328cf82d148d1
 //
 #include "use_opencv.h"
 
