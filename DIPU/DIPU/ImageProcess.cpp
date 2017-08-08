@@ -127,8 +127,8 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 	vector<vector<Point>> ApproximatedContours;
 	vector<Vec4i> hierarchy;
 
-	//findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
-	findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+	findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
+	//findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 	// Draw contours
 	cout << "Draw contours**********\n";
