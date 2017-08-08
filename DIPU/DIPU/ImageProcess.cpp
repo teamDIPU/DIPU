@@ -6,7 +6,7 @@ Mat src;
 unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 180,130,240 },{ 150,210,220} };// °Ë Èò »¡ »ì 
 unsigned char PenColorHSV[ColorNum][3];
 
-bool webcamMode = true;
+bool webcamMode = false;
 
 vector<vector<Point2d>> DIPU::ImageProcess()
 {
@@ -42,7 +42,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 	///¿Ü°û¼± ÃßÃâ
 	// ¹à±â °ª¿¡ ¸ÂÃß¾î canny edge detect
-	while (1) {
+	for(int i = 0; i<100 ;i++) {
 		Canny(src, edge, edgeThresh, edgeThresh * 3, 3);
 		Scalar a = ((mean(edge)));
 		//cout << a[0] << "     " << edgeThresh << endl;
@@ -62,17 +62,8 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	cv::Mat element2(2, 2, CV_8U, cv::Scalar(1));
 	element2.at<unsigned char>(1, 0) = 0;
 
-	cv::Mat element3(2, 2, CV_8U, cv::Scalar(1));
-	element3.at<unsigned char>(0, 1) = 0;
-
-	cv::Mat element4(2, 2, CV_8U, cv::Scalar(1));
-	element4.at<unsigned char>(1, 1) = 0;
-
 	cv::morphologyEx(edge, erode1, cv::MORPH_ERODE, element1, Point(1, 1));
 	cv::morphologyEx(edge, erode2, cv::MORPH_ERODE, element2, Point(1, 0));
-	//edge = edge - closed;
-	cv::morphologyEx(edge, erode3, cv::MORPH_ERODE, element3, Point(0, 1));
-	cv::morphologyEx(edge, erode4, cv::MORPH_ERODE, element4, Point(0, 0));
 	edge = edge - erode1 - erode2;
 
 	cv::namedWindow("Closed Image");
@@ -136,6 +127,7 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src)
 	vector<vector<Point>> ApproximatedContours;
 	vector<Vec4i> hierarchy;
 
+	//findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
 	findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 	// Draw contours
