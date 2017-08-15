@@ -5,10 +5,13 @@
 #include <math.h>
 #include <iostream>
 
+
+
 //#define RNG rng(12345);
 #define Debug 0
 //
 #include "use_opencv.h"
+#include "opencv2/opencv.hpp"
 
 #define FILE "testImage/ds.jpg"
 #define LimitDistanceEQU2PT 0.5
@@ -45,6 +48,7 @@ class DIPU
 
 public:
 	Mat A_drawing;
+	Mat cam_frame;
 	//int ImageProcess();
 	vector<vector<Point2d>> ImageProcess();
 	void setWebcamMode(bool mode);

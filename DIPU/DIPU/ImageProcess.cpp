@@ -1,6 +1,7 @@
 //
 #include "ImageProcess.h"
 
+
 Mat src;
 
 unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 180,130,240 },{ 150,210,220} };// 검 흰 빨 살 
@@ -14,8 +15,11 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 	char* filename = FILE;
 
-	if (webcamMode) src = capture();
-	else src = imread(filename, 0);		
+	//if (webcamMode) src = capture();
+	if (webcamMode) 
+		src = cam_frame;
+	else 
+		src = imread(filename, 0);		
 	
 	Mat src_3c = Mat(src.cols, src.rows, CV_8UC3); // imread(filename, 3);	//원본 이미지(3c)
 	Mat edge = Mat(src.cols, src.rows, CV_8UC1);		//edge 이미지
@@ -375,21 +379,55 @@ void DIPU::myDrawContours(InputOutputArray image, vector<vector<Point>> contours
 Mat DIPU::capture()
 {
 	// open the default camera
+	//// face detection configuration
+	cv::CascadeClassifier face_classifier;
+	face_classifier.load("C:/openCV3.1/sources/data/haarcascades/haarcascade_frontalface_default.xml");
 	VideoCapture capture(0);
 
 	// check if we succeeded
 	if (!capture.isOpened())
 		return Mat();
 
-	namedWindow("WebCam Frame Capture", 1);
+	//namedWindow("WebCam Frame Capture", 1);
 	Mat frame;
+
 	capture >> frame;
 
-	imshow("WebCam Frame Capture", frame);
+	//imshow("WebCam Frame Capture", frame);
 
 	for (;;) {
 		capture >> frame;
 		imshow("WebCam Frame Capture", frame);
+
+		try {
+			cv::Mat grayframe;
+			cv::cvtColor(frame, grayframe, CV_BGR2GRAY);
+			cv::equalizeHist(grayframe, grayframe);
+			// -------------------------------------------------------------
+			// face detection routine
+
+			// a vector array to store the face found
+			std::vector<cv::Rect> faces;
+
+			face_classifier.detectMultiScale(grayframe, faces,
+				1.1, // increase search scale by 10% each pass
+				3,   // merge groups of three detections
+				CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_SCALE_IMAGE,
+				cv::Size(30, 30)
+			);
+			for (int i = 0; i < faces.size(); i++) {
+				cv::Point lb(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
+				cv::Point tr(faces[i].x, faces[i].y);
+
+				cv::rectangle(frame, lb, tr, cv::Scalar(0, 255, 0), 3, 4, 0);
+			}
+
+			// print the output
+			cv::imshow("webcam", frame);
+		}
+		catch (cv::Exception& e) {
+			std::cerr << "Exception occurred. Ignoring frame... " << e.err << std::endl;
+		}
 		if (waitKey(1) >= 0) break;
 	}
 

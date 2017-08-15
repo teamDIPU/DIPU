@@ -130,6 +130,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>C:\openCV3.1\build\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world310d.lib</AdditionalDependencies>
+      <DelayLoadDLLs>opencv_world310d.lib</DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

@@ -11,6 +11,7 @@
 #include "USB2DY.h"
 #include <sapi.h>
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -81,6 +82,7 @@ BEGIN_MESSAGE_MAP(CDIPUDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_IMG_DRAW, &CDIPUDlg::OnBnClickedImgDraw)
 	ON_STN_CLICKED(IDC_PIC, &CDIPUDlg::OnStnClickedPic)
 	ON_BN_CLICKED(IDC_IMAGPROCESSING, &CDIPUDlg::OnBnClickedImagprocessing)
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 
@@ -112,7 +114,7 @@ BOOL CDIPUDlg::OnInitDialog()
 	A4_y1 = -148.5;
 	A4_y2 = A4_y1 + 297 ;
 	
-
+	
 
 	//voice
 #if !(Mute)
@@ -323,7 +325,6 @@ void CDIPUDlg::OnBnClickedBtnSendMotDeg()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int Q1, Q2, Q3;
-	int size;
 	
 
 	Q1 = GetDlgItemInt(IDC_EDIT_SEND_MOT_DEG1, 0, 1);
@@ -408,28 +409,10 @@ void CDIPUDlg::servocom(int *id, double *deg)
 	// Make syncwrite packet
 	//0.114rpm 8배
 	//0.916rpm
-	double dif_1, dif_2;
-	double presentdeg1, presentdeg2;
-	double load1, load2;
 
 
-	/*
-	presentdeg1 = dxl_read_word(1, 36);
-	presentdeg2 = dxl_read_word(2, 36);
-	load1 = dxl_read_word(1, 40);
-	if (load1 > 1023)
-		load1 = load1-1024;
-	load2 = dxl_read_word(2, 40);
-	if (load2 > 1023)
-		load2 = load2-1024;
-	printf("   load1=%.3f , load2=%.3f", load1, load2);
 
-	//printf("p1=%f , p2=%f\n", presentdeg1, presentdeg2);
-	dif_1 = ((long)(deg[0]-presentdeg1));
-	dif_2 = ((long)(deg[1]-presentdeg2));
-	
-	printf("   dif1=%.3f , dif2=%.3f\n", dif_1, dif_2);
-	*/
+
 	int speed[3];
 	if (deg[2] == 590)
 	{
@@ -499,7 +482,7 @@ void CDIPUDlg::servocom(int *id, double *deg)
 void CDIPUDlg::CalcJoint(double Pos_x, double Pos_y, double Pos_z)
 {
 
-	double  Q1, Q2, Q3;
+	double  Q1, Q2;
 	double	r11, r12, r13;
 	double	r21, r22, r23;
 	double	r31, r32, r33;
@@ -573,7 +556,7 @@ void CDIPUDlg::OnBnClickedBtnDrawLine()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	double iter;
 	double len;
-	double px, py, pz;
+	double px, py;
 	iter = 100; 
 	len = 100;
 	//y=x
@@ -606,7 +589,7 @@ void CDIPUDlg::OnBnClickedBtnDrawCircle()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	double iter;
 	double r;
-	double px, py, pz;
+	double px, py;
 	double cen_x, cen_y;
 	iter = 100;
 	r = 50;
@@ -805,10 +788,10 @@ void CDIPUDlg::OnBnClickedImgDraw()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	double iter;
 	double len;
-	double px, py, pz;
+	double px, py;
 	iter = 100;
 	len = 50;
-
+	
 	
 	for (int i = 0; i < contours.size(); ) {
 		cout << "\nDraw contour " << i + 1 << endl;
@@ -838,71 +821,167 @@ void CDIPUDlg::OnBnClickedImgDraw()
 void CDIPUDlg::OnStnClickedPic()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
-
-}
-
-
-void CDIPUDlg::DisplayImage(int IDC_PICURE, Mat targetMat)
-{
-
-	IplImage* targetIplImage = new IplImage(targetMat);
-
-	if (targetIplImage != nullptr) {
-		CWnd* pWnd_ImageTraget = GetDlgItem(IDC_PIC);
-		CClientDC dcImageTraget(pWnd_ImageTraget);
-		RECT rcImageTraget;
-		pWnd_ImageTraget->GetClientRect(&rcImageTraget);
-
-		BITMAPINFO bitmapInfo;
-		memset(&bitmapInfo, 0, sizeof(bitmapInfo));
-		bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-		bitmapInfo.bmiHeader.biPlanes = 1;
-		bitmapInfo.bmiHeader.biCompression = BI_RGB;
-		bitmapInfo.bmiHeader.biWidth = targetIplImage->width;
-		bitmapInfo.bmiHeader.biHeight = -targetIplImage->height;
-
-		IplImage *tempImage = nullptr;
-
-		if (targetIplImage->nChannels == 1)
-		{
-			tempImage = cvCreateImage(cvSize(targetIplImage->width, targetIplImage->height), IPL_DEPTH_8U, 3);
-			cvCvtColor(targetIplImage, tempImage, CV_GRAY2BGR);
-		}
-		else if (targetIplImage->nChannels == 3)
-		{
-			tempImage = cvCloneImage(targetIplImage);
-		}
-
-		bitmapInfo.bmiHeader.biBitCount = tempImage->depth * tempImage->nChannels;
-
-		dcImageTraget.SetStretchBltMode(COLORONCOLOR);
-		::StretchDIBits(dcImageTraget.GetSafeHdc(), rcImageTraget.left, rcImageTraget.top, rcImageTraget.right, rcImageTraget.bottom,
-			0, 0, tempImage->width, tempImage->height, tempImage->imageData, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
-
-		cvReleaseImage(&tempImage);
-	}
+	printf("hi");
 
 }
+
+
+
 
 
 void CDIPUDlg::OnBnClickedImagprocessing()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
+	
 	//voice
 #if !(Mute)
 	m_pVoicetext = L"사진 찍습니다! 하나, 둘, 셋!";
 	AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
 
+	//Mat frame;
+	
+	VideoCapture cap(0);
+	Mat frame;
+	CImage cimage_mfc;
+	cap.set(CAP_PROP_FRAME_WIDTH, 320);
+	cap.set(CAP_PROP_FRAME_HEIGHT, 240);
+	namedWindow("WebCam Frame Capture", 1);
+	cap >> frame;
 
-	DIPU a;
-	//a.test();
+
+	//frame = a.capture();
+
+	while (1)
+	{
+		cap >> frame;
+
+		int bpp = 8 * frame.elemSize();
+		assert((bpp == 8 || bpp == 24 || bpp == 32));
+
+		int padding = 0;
+		//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+		if (bpp < 32)
+			padding = 4 - (frame.cols % 4);
+
+		if (padding == 4)
+			padding = 0;
+
+		int border = 0;
+		//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+		if (bpp < 32)
+		{
+			border = 4 - (frame.cols % 4);
+		}
+
+
+
+		RECT r;
+		m_stDisplay.GetClientRect(&r);
+		cv::Size winSize(r.right, r.bottom);
+
+		cimage_mfc.Create(winSize.width, winSize.height, 24);
+
+
+		BITMAPINFO bitInfo;
+		bitInfo.bmiHeader.biBitCount = bpp;
+		bitInfo.bmiHeader.biWidth = frame.cols;
+		bitInfo.bmiHeader.biHeight = -frame.rows;
+		bitInfo.bmiHeader.biPlanes = 1;
+		bitInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bitInfo.bmiHeader.biCompression = BI_RGB;
+		bitInfo.bmiHeader.biClrImportant = 0;
+		bitInfo.bmiHeader.biClrUsed = 0;
+		bitInfo.bmiHeader.biSizeImage = 0;
+		bitInfo.bmiHeader.biXPelsPerMeter = 0;
+		bitInfo.bmiHeader.biYPelsPerMeter = 0;
+
+
+		// Image is bigger or smaller than into destination rectangle
+		// we use stretch in full rect
+
+		if (frame.cols == winSize.width  && frame.rows == winSize.height)
+		{
+			// source and destination have same size
+			// transfer memory block
+			// NOTE: the padding border will be shown here. Anyway it will be max 3px width
+
+			SetDIBitsToDevice(cimage_mfc.GetDC(),
+				//destination rectangle
+				0, 0, winSize.width, winSize.height,
+				0, 0, 0, frame.rows,
+				frame.data, &bitInfo, DIB_RGB_COLORS);
+		}
+		else
+		{
+			// destination rectangle
+			int destx = 0, desty = 0;
+			int destw = winSize.width;
+			int desth = winSize.height;
+
+			// rectangle defined on source bitmap
+			// using imgWidth instead of mat_temp.cols will ignore the padding border
+			int imgx = 0, imgy = 0;
+			int imgWidth = frame.cols - border;
+			int imgHeight = frame.rows;
+
+			StretchDIBits(cimage_mfc.GetDC(),
+				destx, desty, destw, desth,
+				imgx, imgy, imgWidth, imgHeight,
+				frame.data, &bitInfo, DIB_RGB_COLORS, SRCCOPY);
+		}
+
+
+		cimage_mfc.BitBlt(::GetDC(m_stDisplay.m_hWnd), 0, 0);
+
+		cimage_mfc.ReleaseDC();
+		cimage_mfc.Destroy();
+		//char ch = waitKey(10);
+		//if (ch == 32) 
+		//	break;       // 32 == space
+		// 
+		//if (ch == 77)                // ->
+		//{
+		//	int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+		//	dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 1);
+		//}
+		//else if (ch == 75)                // <-
+		//{
+		//	int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+		//	dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 1);
+		//}
+		MSG msg;
+	/*	if (PeekMessage(&msg, GetSafeHwnd(), 0, 0, PM_REMOVE) == TRUE)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		Sleep(10);*/
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if (msg.message == WM_KEYDOWN) {
+				int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+				switch (msg.wParam)
+				{
+				case VK_LEFT:// 왼쪽 화살표 키 눌러짐.
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 1);
+					break;
+				case VK_RIGHT: // 오른쪽 화살표 키 눌러짐.
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 1);
+					break;
+				}
+			}
+
+		}
+
+
+
+	}
+	 
+	a.cam_frame = frame;
 	contours = a.ImageProcess();
-	Mat targetmat = a.getTargetMat();
-	DisplayImage(IDC_PIC, targetmat);
-
+	//Mat targetmat = a.getTargetMat();
 
 }
 
@@ -926,4 +1005,41 @@ UINT CDIPUDlg::ThreadVoice(LPVOID pParam)
 	::CoUninitialize();
 
 	return 0;
+}
+
+void CDIPUDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+
+	switch (nChar)
+	{
+	case VK_LEFT:// 왼쪽 화살표 키 눌러짐.
+		dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 1);
+		break;
+	case VK_RIGHT: // 오른쪽 화살표 키 눌러짐.
+		dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 1);
+
+		break;
+	}
+	CDialogEx::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+BOOL CDIPUDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	if (pMsg->message == WM_KEYDOWN) {
+		int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+		switch (pMsg->wParam)
+		{
+		case VK_LEFT:// 왼쪽 화살표 키 눌러짐.
+			dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 1);
+			break;
+		case VK_RIGHT: // 오른쪽 화살표 키 눌러짐.
+			dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 1);
+			break;
+		}
+	}
+	return CDialogEx::PreTranslateMessage(pMsg);
 }
