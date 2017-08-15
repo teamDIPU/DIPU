@@ -3,7 +3,7 @@
 #pragma once
 #include "comm.h"
 #include "afxwin.h"
-#include"ImageProcess.h"
+#include "ImageProcess.h"
 
 #define HakDebug 0
 #define Mute 0
@@ -83,10 +83,13 @@ public:
 	afx_msg void OnBnClickedImgDraw();
 	int pre_z=0;
 	afx_msg void OnStnClickedPic();
-	void DisplayImage(int IDC_PICURE, Mat targetMat);
+	//void DisplayImage(int IDC_PICURE, Mat targetMat);
 	//void DisplayImage(int IDC_PICTURE_TARGET, Mat targetMat);
 	afx_msg void OnBnClickedImagprocessing();
 	CStatic m_stDisplay;
 	static UINT ThreadVoice(LPVOID pParam);
 	LPCWSTR m_pVoicetext;
+
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

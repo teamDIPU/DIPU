@@ -1,12 +1,17 @@
 //
 #include "ImageProcess.h"
 
+
 Mat src;
 
 unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 130, 90, 235 },{ 185, 230, 250 } };// 검 흰 빨 살 
 unsigned char PenColorHSV[ColorNum][3];
 
-bool webcamMode = false;
+
+
+DIPU::DIPU() {
+	face_classifier.load("C:/openCV3.1/sources/data/haarcascades/haarcascade_frontalface_default.xml");
+}
 
 vector<vector<Point2d>> DIPU::ImageProcess()
 {
@@ -14,12 +19,17 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 	char* filename = FILE;
 
-	if (webcamMode) src = capture();
-	else src = imread(filename, 0);		
+	if (webcamMode) 
+		src = cam_frame;
+	else 
+		src = imread(filename, 1);		
 	
-	Mat src_3c = imread(filename, 3);	//원본 이미지(3c)
+	Mat srcGray;
+	if (srcGray.channels() == 3) cvtColor(src, srcGray, CV_BGR2GRAY);
+	else srcGray = src.clone();
+
 	Mat edge = Mat(src.cols, src.rows, CV_8UC1);		//edge 이미지
-	Mat dst = Mat(src.cols, src.rows, CV_8UC3);		//최종 이미지
+	Mat dst = Mat::zeros(src.size(), CV_8UC3);		//최종 이미지
 
 	if (src.rows != 0)
 	cout << "distance (point to point) : " << 210.0 * LimitDistancePT2PT / src.rows << "mm" << "\n";
@@ -28,9 +38,6 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	cout << "LimitDistancePT2PT : " << LimitDistancePT2PT << endl;
 	cout << "MinimumContourPixel : " << MinimumContourPixel << endl;
 	cout << "CannyImageBrightness : " << CannyImageBrightness << endl<<endl;
-
-
-	int edgeThresh = CannyThresh;
 
 	if (src.empty()) {
 		cout << "can not open" << endl;
@@ -41,34 +48,33 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 
 	///외곽선 추출
 	// 밝기 값에 맞추어 canny edge detect
-	for(int i = 0; i<100 ;i++) {
+
+	int edgeThresh = CannyThresh;
+	for(int i=0; i<50; i++) {
 		Canny(src, edge, edgeThresh, edgeThresh * 3, 3);
-		Scalar a = ((mean(edge)));
+		Scalar a = mean(edge);
 		if (a[0] < CannyImageBrightness - CannyImageBrightnessTerm) edgeThresh--;
 		else if (a[0] > CannyImageBrightness + CannyImageBrightnessTerm) edgeThresh++;
 		else {
-			cout << "edge threshold : " << edgeThresh << endl;
 			break;
 		}
 	}
+	cout << "edge threshold : " << edgeThresh << endl;
 
 	thinning(edge);
-	
-	cv::namedWindow("Closed Image");
-	cv::imshow("Closed Image", edge);
-	imwrite("patternImage/pV.png", edge);
 
 	// Contour approximation and Conversion 
 	vector<vector<Point>> contours;
 	vector<vector<Point2d>> TransformContours;
-	contours = ContourApproximation(edge);
+	contours = ContourApproximation(edge, dst);
 	TransformContours = ContoursTransform(edge, contours);
 
-	imshow("contour image", A_drawing);
-	imshow("source image", src_3c);
-	//imshow("contour image", A_drawing);
+	intensityContours(src, dst);
 
-	cout << "\n********** Image Process end **********\n\n";
+	imshow("contour image", dst);
+	imshow("source image", src);
+
+	cout << "\n\n********** Image Process end **********\n\n";
 
 	//return 0;
 	return TransformContours;
@@ -94,26 +100,6 @@ void DIPU::setWebcamMode(bool mode) {
 
 int DIPU::test()
 {
-	char* filename = FILE;
-	Mat src_3c = imread(filename, 3);
-	Mat edge = Mat(src_3c.rows, src_3c.cols, CV_8UC1);		//edge 이미지
-	Mat dst = Mat(src_3c.rows, src_3c.cols, CV_8UC3);		//최종 이미지
-	Mat black = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
-	Mat red = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
-	Mat skin = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
-
-	dst = ColorTransform(src_3c, black, red, skin);
-	black = pattern(black, "patternImage/stripe.png");
-	red = pattern(red, "patternImage/stripe.png");
-	skin = pattern(skin, "patternImage/v.png");
-	imshow("tr", dst);
-
-	vector<vector<Point>> contours;
-	vector<vector<Point2d>> TransformContours;
-	contours = ContourApproximation(black);
-	TransformContours = ContoursTransform(black, contours);
-	imshow("contour image", A_drawing);
-
 	return 0;
 }
 
@@ -141,11 +127,9 @@ vector<vector<Point2d>> DIPU::colorTest() {
 	return TransformContours;
 }
 
-vector<vector<Point2d>> DIPU::brightTest() {
-	char* filename = FILE;
-	Mat src= imread(filename, 1);
+vector<vector<Point2d>> DIPU::intensityContours(Mat src, Mat& dst) {
+	if (src.channels() == 3) cvtColor(src, src, CV_BGR2GRAY);
 	Mat edge = Mat(src.rows, src.cols, CV_8UC1);		//edge 이미지
-	Mat dst = Mat::zeros(src.size(), CV_8UC3);		//최종 이미지
 
 	Mat bright1 = Mat(src.rows, src.cols, CV_8UC1);	
 	Mat bright2 = Mat(src.rows, src.cols, CV_8UC1);		
@@ -153,7 +137,7 @@ vector<vector<Point2d>> DIPU::brightTest() {
 
 	bright(src, bright1, bright2);
 	bright1 = pattern(bright1, "patternImage/stripe.png");
-	bright2 = pattern(bright2, "patternImage/stripe2.png");
+	bright2 = pattern(bright2, "patternImage/stripeInv.png");
 	//imshow("tr", dst);
 
 	vector<vector<Point>> contours;
@@ -164,7 +148,6 @@ vector<vector<Point2d>> DIPU::brightTest() {
 
 	contours = ContourApproximation(bright2, dst);
 	TransformContours2 = ContoursTransform(bright2, contours);
-
 
 	TransformContours1.insert(TransformContours1.end(), TransformContours2.begin(), TransformContours2.end());
 
@@ -193,42 +176,24 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 	RNG rng(12345);
 	Mat dst = src.clone();
 
-	//imshow("sourc", src);
-
 	if (src.empty()) {
-		//cout << "can not open" << endl;
-		//return 1;
+
 	}
 
-	//RNG rng(12345);
-	// Mat output;
 	vector<vector<Point>> contours;
 	vector<vector<Point>> DividedContours;
 	vector<vector<Point>> ApproximatedContours;
 	vector<Vec4i> hierarchy;
 
-	findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
-	//findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+	findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 	// Draw contours
 	cout << "Draw contours**********\n";
 	int CountourNum = 0;
-	Mat drawing = Mat::zeros(src.size(), CV_8UC3);
-	for (int i = 0; i < contours.size(); i++)
-	{
-		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-		drawContours(drawing, contours, i, color, 1, 8, hierarchy, 0, Point());
-		CountourNum += contours[i].size();
-
-		//	cout << "contour " << i + 1 << "   size : " << contours[i].size() << endl;
-	}
-	cout << "Contour point : " << CountourNum << endl;
-	cout << "countour number : " << contours.size() << endl << endl;
-
-
 
 	// Check Overlap
 	for (int i = 0; i < contours.size(); i++) {
+		CountourNum += contours[i].size();
 		for (int j = 0; j < contours[i].size(); j++) {
 			for (int k = 0; k < j; k++) {
 				if ((contours[i][j].x == contours[i][k].x) && (contours[i][j].y == contours[i][k].y)) {
@@ -238,7 +203,8 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 			}
 		}
 	}
-
+	cout << "Contour point : " << CountourNum << endl;
+	cout << "countour number : " << contours.size() << endl << endl;
 
 	// Make Contours (DividedContours)
 	for (int i = 0; i < contours.size(); i++) {
@@ -259,20 +225,17 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 	// Check contours(remove overlap)
 	cout << endl << "Divided Contour **********" << endl;
 	for (int i = 0; i < DividedContours.size(); i++) {
-		//cout << "contour " << i + 1 << "   size : " << DividedContours[i].size()<<endl ;
 		DividedCountourNum += DividedContours[i].size();
 		for (int j = 0; j < DividedContours[i].size(); j++) {
-			//cout << DividedContours[i][j] << endl;
 		}
 	}
 	cout << "Divided Contour point : " << DividedCountourNum << endl;
 	cout << "countour number : " << DividedContours.size() << endl << endl;
-	//cout << endl;
+	cout << endl;
 
 	// Polygun Approximation 
 	for (int i = 0; i < DividedContours.size(); i++) {
 
-		//cout << "Approximation contour" << i << endl << endl;
 		vector<Point> it1;
 		Point2f EquationPT2PT;
 		float DistanceEQU2PT = 0, DistancePT2PT;
@@ -295,22 +258,18 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 				EquationPT2PT = FindLinearEquation(it1[it1.size() - 1], point);
 				DistancePT2PT = FindDistance_pt2pt(it1[it1.size() - 1], point);
 				if (DistancePT2PT > LimitDistancePT2PT) goto save;
-				//cout << "Points : " << it1[it1.size() - 1] << point << EquationPT2PT << endl;
 			}
 			for (int k = num; k < j; k++) {
 				DistanceEQU2PT = FindDistance_equ2pt(EquationPT2PT, DividedContours[i][k]);
 				if (DistanceEQU2PT > LimitDistanceEQU2PT) goto save;
-				//cout <<"Distance : "<< DividedContours[i][k] << DistanceEQU2PT <<endl;
 			}
 			continue;
 
 		save:
-			//cout << "save Point" << point << endl << endl;
 			num = j;
 			it1.push_back(point);
 			continue;
 		}
-		//if (it1.size() !=0 ) ApproximatedContours.push_back(it1);
 
 		if (it1.size() >MinimumContourPixel / LimitDistancePT2PT) ApproximatedContours.push_back(it1);
 	}
@@ -338,13 +297,14 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 
 	//ApproximatedContours
 	A_drawing = Mat::zeros(src.size(), CV_8UC3);
+	if (ApproximatedContours.size() == 0) return ApproximatedContours;
 	for (int i = 0; i < ApproximatedContours.size() - 1; i++)
 	{
 		myDrawContours(A_drawing, ApproximatedContours, 0);
 	}
+	if (destination.empty()) destination = Mat::zeros(src.size(), CV_8UC3);
 	add(destination, A_drawing, destination);
 	return ApproximatedContours;
-
 }
 
 vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> contours)
@@ -358,7 +318,6 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 	vector<vector<Point2d>> TransformContour;
 	for (int i = 0; i < contours.size(); i++) {
 		vector<Point2d> it1;
-		//cout << "\ncontour " << i + 1 << endl;
 
 #if Debug
 		cout << "Transform Contour " << i << endl;
@@ -380,7 +339,6 @@ vector<vector<Point2d>> DIPU::ContoursTransform(Mat src, vector<vector<Point>> c
 		else //세로길이에 맞추기
 		{
 			for (int j = 0; j < contours[i].size(); j++) {
-				//Point2d point(contours[i][j].x * (A4Y/src.rows)+(A4X)*(1-A4Y/src.cols)/2 , contours[i][j].y*(A4Y/src.rows));
 				Point2d point(A4X-(contours[i][j].x * (A4Y / src.rows) + (A4X - A4Y * src.cols / src.rows) / 2)*scale, contours[i][j].y*(A4Y / src.rows)*scale);
 
 				it1.push_back(point);
@@ -435,23 +393,53 @@ void DIPU::myDrawContours(InputOutputArray image, vector<vector<Point>> contours
 	}
 }
 
-Mat DIPU::capture()
+Mat DIPU::capture(VideoCapture capture)
 {
 	// open the default camera
-	VideoCapture capture(0);
+	//// face detection configuration
 
-	if (!capture.isOpened())
-		return Mat();
-
-	namedWindow("WebCam Frame Capture", 1);
 	Mat frame;
-	for (;;) {
-		capture >> frame;
-		imshow("WebCam Frame Capture", frame);
-		if (waitKey(1) >= 0) break;
+	capture >> frame;
+	cam_frame = frame.clone();
+	try {
+		cv::Mat grayframe;
+		cv::cvtColor(frame, grayframe, CV_BGR2GRAY);
+		//cv::equalizeHist(grayframe, grayframe);
+		// -------------------------------------------------------------
+		// face detection routine
+		// a vector array to store the face found
+		std::vector<cv::Rect> faces;
+
+		face_classifier.detectMultiScale(grayframe, faces,
+			1.1, // increase search scale by 10% each pass
+			3,   // merge groups of three detections
+			CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_SCALE_IMAGE,
+			cv::Size(30, 30)
+		);
+		int bigFaceIndex = 0;
+		int bigFaceWidth = 0;
+		for (int i = 0; i < faces.size(); i++) {
+			if (bigFaceWidth < faces[i].width) {
+				bigFaceWidth = faces[i].width;
+				bigFaceIndex = i;
+			}
+			cv::Point lb(faces[i].x + faces[i].width, faces[i].y + faces[i].height);
+			cv::Point tr(faces[i].x, faces[i].y);
+
+			cv::rectangle(frame, lb, tr, cv::Scalar(0, 255, 0), 3, 4, 0);
+		}
+		facePosition = 100 - (faces[bigFaceIndex].x + bigFaceWidth / 2) * 100 / frame.cols;
+	}
+	catch (cv::Exception& e) {
+		std::cerr << "Exception occurred. Ignoring frame... " << e.err << std::endl;
 	}
 	return frame;
 }
+
+int DIPU::getFacePosition() {
+	return facePosition;
+}
+
 
 Mat DIPU::getTargetMat() {
 	if (A_drawing.empty()) return src;
@@ -569,9 +557,23 @@ Mat DIPU::bright(Mat src, Mat bright1, Mat bright2)
 	if (src.channels() == 3) {
 		cvtColor(src, src, CV_BGR2GRAY);
 	}
+	int thresholdValue = 120;
+	for (int i = 0; i<70; i++) {
+		threshold(src, bright1, thresholdValue, 255, THRESH_BINARY_INV);
+		Scalar a = mean(bright1);
+		if (a[0]>90-2) thresholdValue--;
+		else if (a[0] < 90+2) thresholdValue++;
+		else { break; }
+	}
+	thresholdValue = 50;
+	for (int i = 0; i<70; i++) {
+		threshold(src, bright2, thresholdValue, 255, THRESH_BINARY_INV);
+		Scalar a = mean(bright2);
+		if (a[0]>30 - 2) thresholdValue--;
+		else if (a[0] < 30 + 2) thresholdValue++;
+		else { break; }
+	}
 
-	threshold(src, bright1, 120, 255, THRESH_BINARY_INV);
-	threshold(src, bright2, 40, 255, THRESH_BINARY_INV);
 	Mat returnImage = Mat(src.rows, src.cols, CV_8UC1);		
 	subtract(bright1, bright2*0.5, returnImage);
 	return returnImage;
