@@ -65,7 +65,7 @@ BEGIN_MESSAGE_MAP(CDIPUDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN_OPEN_SERIAL, &CDIPUDlg::OnBnClickedBtnOpenSerial)
 	ON_BN_CLICKED(IDOK, &CDIPUDlg::OnBnClickedOk)
-	ON_MESSAGE(WM_RECEIVEDATA,OnReceiveData)
+	//ON_MESSAGE(WM_RECEIVEDATA,OnReceiveData)
 	ON_BN_CLICKED(IDC_BTN_SEND_SERIAL, &CDIPUDlg::OnBnClickedBtnSendSerial)
 	ON_BN_CLICKED(IDCANCEL, &CDIPUDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_BTN_SEND_MOT_DEG, &CDIPUDlg::OnBnClickedBtnSendMotDeg)
@@ -238,7 +238,7 @@ TTYSTRUCT CDIPUDlg::Int2TTY()
 TTYSTRUCT CDIPUDlg::LoadSettings()
 {
 	CWinApp *pApp = AfxGetApp();
-	m_nSettingPort = 1;//pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
+	m_nSettingPort = 4;//1;//pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_PORT, 2);
 	m_nSettingParity = 0;
 	m_nSettingBaud = pApp->GetProfileInt(CS_REGKEY_SETTINGS, CS_REGENTRY_BAUD, 0);
 	m_nSettingData = 1;
@@ -364,7 +364,7 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int result;
 
-	result = dxl_initialize(9, DEFAULT_BAUDNUM);
+	result = dxl_initialize(5, DEFAULT_BAUDNUM);
 
 	if (result == 1)
 	{
@@ -892,18 +892,17 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 
 	//voice
 #if !(Mute)
-	m_pVoicetext = L"사진 찍습니다! 하나, 둘, 셋!";
+	m_pVoicetext = L"사진 찍습니다! 하나, 두울, 세엣!";
 	AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
 
 
 	DIPU a;
-	//a.test();
-	contours = a.ImageProcess();
+	//contours = a.colorTest();
+	contours = a.brightTest();
+	//contours = a.ImageProcess();
 	Mat targetmat = a.getTargetMat();
-	DisplayImage(IDC_PIC, targetmat);
-
-
+	//DisplayImage(IDC_PIC, targetmat);
 }
 
 
