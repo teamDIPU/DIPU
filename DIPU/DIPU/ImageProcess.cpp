@@ -66,10 +66,13 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	// Contour approximation and Conversion 
 	vector<vector<Point>> contours;
 	vector<vector<Point2d>> TransformContours;
+	vector<vector<Point2d>> intensContours;
 	contours = ContourApproximation(edge, dst);
 	TransformContours = ContoursTransform(edge, contours);
-
-	intensityContours(src, dst);
+	
+	imshow("aa", dst);
+	intensContours = intensityContours(src, dst);
+	intensContours.insert(intensContours.end(), TransformContours.begin(), TransformContours.end());
 
 	imshow("contour image", dst);
 	imshow("source image", src);
@@ -77,7 +80,7 @@ vector<vector<Point2d>> DIPU::ImageProcess()
 	cout << "\n\n********** Image Process end **********\n\n";
 
 	//return 0;
-	return TransformContours;
+	return intensContours;
 }
 
 void DIPU::thinning(Mat edge) {
@@ -105,23 +108,29 @@ int DIPU::test()
 
 vector<vector<Point2d>> DIPU::colorTest() {
 	char* filename = FILE;
-	Mat src_3c = imread(filename, 3);
-	Mat edge = Mat(src_3c.rows, src_3c.cols, CV_8UC1);		//edge 이미지
-	Mat dst = Mat(src_3c.rows, src_3c.cols, CV_8UC3);		//최종 이미지
-	Mat black = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
-	Mat red = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
-	Mat skin = Mat(src_3c.rows, src_3c.cols, CV_8UC1, Scalar(0));
+	Mat src;
 
-	dst = ColorTransform(src_3c, black, red, skin);
+	if (webcamMode)
+		src = cam_frame;
+	else
+		src = imread(filename, 1);
+
+	Mat edge = Mat(src.rows, src.cols, CV_8UC1);		//edge 이미지
+	Mat dst = Mat(src.rows, src.cols, CV_8UC3);		//최종 이미지
+	Mat black = Mat(src.rows, src.cols, CV_8UC1, Scalar(0));
+	Mat red = Mat(src.rows, src.cols, CV_8UC1, Scalar(0));
+	Mat skin = Mat(src.rows, src.cols, CV_8UC1, Scalar(0));
+
+	dst = ColorTransform(src, black, red, skin);
 	black = pattern(black, "patternImage/stripe.png");
 	red = pattern(red, "patternImage/stripe.png");
-	skin = pattern(skin, "patternImage/st.png");
+	skin = pattern(skin, "patternImage/stripeInv.png");
 	imshow("tr", dst);
 
 	vector<vector<Point>> contours;
 	vector<vector<Point2d>> TransformContours;
-	contours = ContourApproximation(red);
-	TransformContours = ContoursTransform(red, contours);
+	contours = ContourApproximation(skin);
+	TransformContours = ContoursTransform(skin, contours);
 	imshow("contour image", A_drawing);
 
 	return TransformContours;
@@ -136,8 +145,8 @@ vector<vector<Point2d>> DIPU::intensityContours(Mat src, Mat& dst) {
 	
 
 	bright(src, bright1, bright2);
-	bright1 = pattern(bright1, "patternImage/stripe.png");
-	bright2 = pattern(bright2, "patternImage/stripeInv.png");
+	bright1 = pattern(bright1, "patternImage/stripeInv.png");
+	bright2 = pattern(bright2, "patternImage/stripe.png");
 	//imshow("tr", dst);
 
 	vector<vector<Point>> contours;
@@ -165,7 +174,6 @@ Mat DIPU::pattern(Mat src, char* patternFile) {
 	Canny(pattern, patternEdge, 50, 150, 3);
 	thinning(patternEdge);
 	
-	
 	Mat dst = Mat(src.rows, src.cols, CV_8UC1);
 	bitwise_and(patternEdge, src, dst);
 	return dst;
@@ -185,7 +193,7 @@ vector<vector<Point>> DIPU::ContourApproximation(Mat src, Mat& destination)
 	vector<vector<Point>> ApproximatedContours;
 	vector<Vec4i> hierarchy;
 
-	findContours(src, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE, Point(0, 0));
+	findContours(src, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 	// Draw contours
 	cout << "Draw contours**********\n";
@@ -404,7 +412,7 @@ Mat DIPU::capture(VideoCapture capture)
 	try {
 		cv::Mat grayframe;
 		cv::cvtColor(frame, grayframe, CV_BGR2GRAY);
-		//cv::equalizeHist(grayframe, grayframe);
+		cv::equalizeHist(grayframe, grayframe);
 		// -------------------------------------------------------------
 		// face detection routine
 		// a vector array to store the face found
@@ -428,7 +436,7 @@ Mat DIPU::capture(VideoCapture capture)
 
 			cv::rectangle(frame, lb, tr, cv::Scalar(0, 255, 0), 3, 4, 0);
 		}
-		facePosition = 100 - (faces[bigFaceIndex].x + bigFaceWidth / 2) * 100 / frame.cols;
+		if (bigFaceWidth != 0) facePosition = 100 - (faces[bigFaceIndex].x + bigFaceWidth / 2) * 100 / frame.cols;
 	}
 	catch (cv::Exception& e) {
 		std::cerr << "Exception occurred. Ignoring frame... " << e.err << std::endl;

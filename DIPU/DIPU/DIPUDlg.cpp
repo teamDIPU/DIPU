@@ -838,9 +838,10 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 	m_pVoicetext = L"사진 찍습니다! 하나아, 두우울, 세에엣!";
 	AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
-
+	contours.reserve(2000);
 	if (!a.webcamMode) {
 		contours = a.ImageProcess();
+		//a.colorTest();
 		return;
 	}
 
@@ -943,6 +944,7 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 					AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
 					contours = a.ImageProcess();
+					//a.ImageProcess();
 					return;
 
 				}
