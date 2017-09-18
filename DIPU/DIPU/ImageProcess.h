@@ -54,7 +54,7 @@ public:
 	CascadeClassifier face_classifier;
 	Mat A_drawing;
 	Mat cam_frame;
-	int facePosition;
+	//extern int facePosition;
 	vector<vector<Point2d>> finalContours;
 
 	//int ImageProcess();

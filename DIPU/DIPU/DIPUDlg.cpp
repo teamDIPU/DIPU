@@ -365,7 +365,7 @@ void CDIPUDlg::OnBnClickedBtnMotInit()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int result;
 
-	result = dxl_initialize(5, DEFAULT_BAUDNUM);
+	result = dxl_initialize(9, DEFAULT_BAUDNUM);
 
 	if (result == 1)
 	{
@@ -832,12 +832,12 @@ void CDIPUDlg::OnStnClickedPic()
 void CDIPUDlg::OnBnClickedImagprocessing()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
-	//voice
+
 #if !(Mute)
-	m_pVoicetext = L"사진 찍습니다! 하나아, 두우울, 세에엣!";
+	m_pVoicetext = L"사진 찍습니다! 웃어주세요!";
 	AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
+
 	contours.reserve(2000);
 	if (!a.webcamMode) {
 		contours = a.ImageProcess();
@@ -848,7 +848,8 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 	VideoCapture capture(0);
 	Mat frame;
 	CImage cimage_mfc;
-
+	int faceflag = 0;
+	int count = 0;
 	while (1)
 	{
 		frame = a.capture(capture);
@@ -924,6 +925,39 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 
 		cimage_mfc.ReleaseDC();
 		cimage_mfc.Destroy();
+
+		if (faceflag == 1)
+		{
+			int PresentPos = dxl_read_word(4, P_PRESENT_POSITION_L);
+			int FacePosition, preFacePosition = 0;
+			FacePosition = a.getFacePosition();
+			cout << FacePosition << "\n";
+			if (FacePosition > 400 || preFacePosition > 400)
+			{
+				count++;
+				if (count > 2)
+				{
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 6);
+					count = 0;
+				}
+			}
+
+			else if (FacePosition < 320 - 80 || preFacePosition < 320 - 80)
+			{
+				count--;
+				if (count < -2)
+				{
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 6);
+					count = 0;
+				}
+			}
+			else if (FacePosition > 320 - 80 || FacePosition < 400)
+				count = 0;
+
+			preFacePosition = FacePosition;
+
+			cout << count << "\n";
+		}
 		MSG msg;
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 			TranslateMessage(&msg);
@@ -933,14 +967,27 @@ void CDIPUDlg::OnBnClickedImagprocessing()
 				switch (msg.wParam)
 				{
 				case VK_LEFT:// 왼쪽 화살표 키 눌러짐.
-					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 1);
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos - 3);
 					break;
 				case VK_RIGHT: // 오른쪽 화살표 키 눌러짐.
-					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 1);
+					dxl_write_word(4, P_GOAL_POSITION_L, PresentPos + 3);
 					break;
-				default:
+				case VK_UP:
+					faceflag = 1;
 #if !(Mute)
-					m_pVoicetext = L"찰칵!";
+					m_pVoicetext = L"얼굴을 찾고 있습니다.";
+					AfxBeginThread(ThreadVoice, &m_pVoicetext);
+#endif
+					break;
+				case VK_DOWN:
+					faceflag = 0;
+					break;
+				case 'C':
+					//voice
+
+
+#if !(Mute)
+					m_pVoicetext = L"찰칵찰칵찰칵!";
 					AfxBeginThread(ThreadVoice, &m_pVoicetext);
 #endif
 					contours = a.ImageProcess();

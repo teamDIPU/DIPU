@@ -7,7 +7,7 @@ Mat src;
 unsigned char PenColor[ColorNum][3] = { { 0,0,0 },{ 255,255,255 }, { 130, 90, 235 },{ 185, 230, 250 } };// ∞À »Ú ª° ªÏ 
 unsigned char PenColorHSV[ColorNum][3];
 
-
+extern int facePosition = 0;
 
 DIPU::DIPU() {
 	face_classifier.load("C:/openCV3.1/sources/data/haarcascades/haarcascade_frontalface_default.xml");
@@ -426,6 +426,7 @@ Mat DIPU::capture(VideoCapture capture)
 		);
 		int bigFaceIndex = 0;
 		int bigFaceWidth = 0;
+
 		for (int i = 0; i < faces.size(); i++) {
 			if (bigFaceWidth < faces[i].width) {
 				bigFaceWidth = faces[i].width;
@@ -436,7 +437,11 @@ Mat DIPU::capture(VideoCapture capture)
 
 			cv::rectangle(frame, lb, tr, cv::Scalar(0, 255, 0), 3, 4, 0);
 		}
-		if (bigFaceWidth != 0) facePosition = 100 - (faces[bigFaceIndex].x + bigFaceWidth / 2) * 100 / frame.cols;
+		
+		if (bigFaceWidth != 0)
+			//facePosition = 100 - (faces[bigFaceIndex].x + bigFaceWidth / 2) * 100 / frame.cols;
+			facePosition = faces[bigFaceIndex].x + bigFaceWidth / 2;
+		//cout << facePosition <<"\n";
 	}
 	catch (cv::Exception& e) {
 		std::cerr << "Exception occurred. Ignoring frame... " << e.err << std::endl;
